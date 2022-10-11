@@ -28,6 +28,13 @@ def read_file(dirname, filename):
     return js
 
 
+def write_to_file(dirname, filename, content):
+    file_path = os.path.join(dirname, filename)
+    fileout = open(file_path, "w")
+    fileout.write(json.dumps(content))
+    fileout.close()
+
+
 def ID_to_URL(ID):
     ID_mapping = read_file("data", "links_visited.txt")
     for k in ID_mapping:
@@ -51,6 +58,7 @@ def get_matrix_value(ID, outgoing_ID):
         return False
 
 
+# O(1) time complexity --> read data from file
 def get_outgoing_links(URL):  # PASSED TEST
     dirname = get_dirname(URL)
     if check_directory(dirname) == False:
@@ -59,6 +67,7 @@ def get_outgoing_links(URL):  # PASSED TEST
     return outgoing_links
 
 
+# O(1) time complexity --> read data from file
 def get_incoming_links(URL):  # PASSED TEST
     dirname = get_dirname(URL)
     if check_directory(dirname) == False:
@@ -67,7 +76,7 @@ def get_incoming_links(URL):  # PASSED TEST
     return incoming_links
 
 
-def get_page_rank(URL):  # PASSED TEST
+def write_page_rank_to_files(URL):  # PASSED TEST
     links_visited = read_file("data", "links_visited.txt")
     if URL not in links_visited:
         return -1
@@ -111,8 +120,19 @@ def get_page_rank(URL):  # PASSED TEST
         distance = matmult.euclidean_dist(vector, new_vector)
         vector = new_vector
 
-    ID = URL_to_ID(URL)
-    return vector[0][ID]
+    for link in links_visited:
+        dirname = get_dirname(link)
+        ID = URL_to_ID(link)
+        write_to_file(dirname, "page_rank.txt", vector[0][ID])
+
+
+def get_page_rank(URL):
+    dirname = get_dirname(URL)
+
+    if check_directory(dirname) == False:
+        return -1
+
+    return read_file(dirname, "page_rank.txt")
 
 
 # Term Frequencies
@@ -139,13 +159,11 @@ def get_tf(URL, word):  # PASSED TEST
 # IDFs
 def get_idf(word):  # PASSED TEST
     links_visited = read_file("data", "links_visited.txt")
+    length = read_file("data", "length.txt")
 
     num_of_documents_w = 0
-    num_of_documents = 0
 
     for URL in links_visited:
-
-        num_of_documents += 1
 
         dirname = get_dirname(URL)
         words = read_file(dirname, "words.txt")
@@ -155,7 +173,7 @@ def get_idf(word):  # PASSED TEST
     if num_of_documents_w == 0:
         return 0
 
-    return math.log((num_of_documents / (1 + num_of_documents_w)), 2)
+    return math.log((length / (1 + num_of_documents_w)), 2)
 
 
 # tf-idfs

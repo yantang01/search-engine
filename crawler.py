@@ -99,30 +99,28 @@ def setup_files(dir_name):
     create_file(dir_name, "incoming_links.txt")
     create_file(dir_name, "outgoing_links.txt")
     create_file(dir_name, "page_rank.txt")
-    create_file(dir_name, "tf.txt")
+    # create_file(dir_name, "tf.txt")
     # create_file(dir_name, "idf.txt")
     create_file(dir_name, "tf-idfs.txt")
-    create_file(dir_name, "vector.txt")
 
 
 def computation_process(links_visited, unique_words):
     idf = {}
     for link in links_visited:
         dirname = get_dirname(link)
-        page_rank = searchdata.get_page_rank(link)
-        tf = {}
+        # page_rank = searchdata.get_page_rank(link)
+        # tf = {}
         tf_idf = {}
         vector = []
         for word in unique_words:
-            tf[word] = searchdata.get_tf(link, word)
+            # tf[word] = searchdata.get_tf(link, word)
             idf[word] = searchdata.get_idf(word)
             tf_idf[word] = (searchdata.get_tf_idf(link, word))
             vector.append(searchdata.get_tf_idf(link, word))
 
-        write_to_file(dirname, "page_rank.txt", page_rank)
-        write_to_file(dirname, "tf.txt", tf)
+        # write_to_file(dirname, "page_rank.txt", page_rank)
+        # write_to_file(dirname, "tf.txt", tf)
         write_to_file(dirname, "tf-idfs.txt", tf_idf)
-        write_to_file(dirname, "vector.txt", vector)
 
     write_to_file("data", "idf.txt", idf)
 
@@ -202,9 +200,10 @@ def crawl(seed):
 
     write_to_file("data", "length.txt", len(links_visited))
     write_to_file("data", "links_visited.txt", links_visited)
-    write_to_file("data", "unique_words.txt", unique_words)
+    # write_to_file("data", "unique_words.txt", unique_words)
 
     computation_process(links_visited, unique_words)
+    searchdata.write_page_rank_to_files(seed)
 
     return len(links_visited)
 

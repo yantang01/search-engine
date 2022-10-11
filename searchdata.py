@@ -104,6 +104,7 @@ def get_page_rank(URL):
     return vector[0][ID]
 
 
+# Term Frequencies
 def get_tf(URL, word):
     dirname = get_dirname(URL)
     words = read_file(dirname, "words.txt")
@@ -120,6 +121,7 @@ def get_tf(URL, word):
     return words[word] / count
 
 
+# IDFs
 def get_idf(word):
     links_visited = read_file("data", "links_visited.txt")
 
@@ -141,5 +143,22 @@ def get_idf(word):
     return math.log((num_of_documents / (1 + num_of_documents_w)), 2)
 
 
+# tf-idfs
 def get_tf_idf(URL, word):
     return math.log((1 + get_tf(URL, word)), 2) * get_idf(word)
+
+
+def get_tf_query_word(query, word):
+    query = query.split(" ")
+    counter = {}
+    for w in query:
+        if w in counter:
+            counter[w] += 1
+        else:
+            counter[w] = 1
+    return counter[word]
+
+
+def get_idf_query_word(word):
+    idfs = read_file("data", "idf.txt")
+    return idfs[word]

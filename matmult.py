@@ -1,3 +1,6 @@
+from turtle import distance
+
+
 def mult_scalar(matrix, scale):
     result = []
 
@@ -37,6 +40,20 @@ def mult_matrix(a, b):
     return result
 
 
+def mult_matrix_test(matrix1, matrix2):
+    res = [[0 for x in range(len(matrix1))for y in range(len(matrix2[0]))]]
+
+    # explicit for loops
+    for i in range(len(matrix1)):
+        for j in range(len(matrix2[0])):
+            for k in range(len(matrix2)):
+
+                # resulted matrix
+                res[i][j] += matrix1[i][k] * matrix2[k][j]
+
+    return res
+
+
 def euclidean_dist(a, b):
     total = 0
 
@@ -48,3 +65,70 @@ def euclidean_dist(a, b):
 
     # return root of total
     return total**0.5
+
+
+# vector = [[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]]
+# matrix = [
+#     [0.01, 0.1225, 0.1225, 0.1225, 0.1225, 0.1225, 0.1225, 0.1225, 0.1225, 0.01],
+#     [0.46, 0.01, 0.46, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01],
+#     [0.31, 0.31, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.31, 0.01],
+#     [0.91, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01],
+#     [0.91, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01],
+#     [0.31, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.31, 0.31],
+#     [0.91, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01],
+#     [0.91, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01],
+#     [0.31, 0.01, 0.31, 0.01, 0.01, 0.31, 0.01, 0.01, 0.01, 0.01],
+#     [0.01, 0.01, 0.01, 0.01, 0.01, 0.91, 0.01, 0.01, 0.01, 0.01],
+# ]
+
+# res = []
+# calculation = []
+
+# for c in range(len(matrix[0])):
+#     col_sum = 0
+#     for r in range(len(matrix)):
+#         col_sum += matrix[r][c]
+#     calculation.append(col_sum * vector[0][0])
+# res.append(calculation)
+
+# print(res)
+
+# # matrix[0][0] + matrix[1][0] + matrix[2][0]
+# # element = 0.1 * (0.01+0.46+...+0.01)
+# # calculation.append(element)
+
+
+# # print(mult_matrix_test(vector, matrix))
+
+# # new_vector = mult_matrix_test(vector, matrix)
+# # distance = euclidean_dist(vector, new_vector)
+
+# # print(new_vector)
+# # print(distance)
+
+
+# def getColAsList(matrixToManipulate, col):
+#     myList = []
+#     numOfRows = len(matrixToManipulate)
+#     for i in range(numOfRows):
+#         myList.append(matrixToManipulate[i][col])
+#     return myList
+
+
+# def getCell(matrix1, matrix2, r, c):
+#     matrixBCol = getColAsList(matrix2, c)
+#     lenOfList = len(matrixBCol)
+#     productList = [matrix1[r][i]*matrixBCol[i] for i in range(lenOfList)]
+#     return sum(productList)
+
+
+# def mult_matrix_test_version2(matrix1, matrix2):
+#     res = [[0 for x in range(len(matrix1))for y in range(len(matrix2[0]))]]
+
+#     if (len(matrix1[0]) != len(matrix2)):
+#         return None
+
+#     for i in range(len(matrix1)):
+#         for j in range(len(matrix2[0])):
+#             res[i][j] = getCell(matrix1, matrix2, i, j)
+#         print(res[i])

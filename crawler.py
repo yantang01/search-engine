@@ -1,3 +1,4 @@
+import math
 import webdev
 import os
 import json
@@ -81,6 +82,15 @@ def create_file(dirname, filename):
     fileout.close()
 
 
+def read_file(dirname, filename):
+    file_path = os.path.join(dirname, filename)
+    f = open(file_path, "r")
+    data = f.read()
+    js = json.loads(data)
+    f.close()
+    return js
+
+
 def write_to_file(dirname, filename, content):
     file_path = os.path.join(dirname, filename)
     fileout = open(file_path, "w")
@@ -95,74 +105,87 @@ def delete_files():
 def setup_files(dir_name):
     create_directory(dir_name)
     create_file(dir_name, "title.txt")
-    create_file(dir_name, "words.txt")
+    # create_file(dir_name, "words.txt")
     create_file(dir_name, "incoming_links.txt")
     create_file(dir_name, "outgoing_links.txt")
     create_file(dir_name, "page_rank.txt")
-    # create_file(dir_name, "tf.txt")
+    create_file(dir_name, "tf.txt")
     # create_file(dir_name, "idf.txt")
     create_file(dir_name, "tf-idfs.txt")
 
 
-def computation_process(links_visited, unique_words):
+def write_idf_to_file(links_visited, word_appears):
     idf = {}
-    for link in links_visited:
-        dirname = get_dirname(link)
-        # page_rank = searchdata.get_page_rank(link)
-        # tf = {}
-        tf_idf = {}
-        vector = []
-        for word in unique_words:
-            # tf[word] = searchdata.get_tf(link, word)
-            idf[word] = searchdata.get_idf(word)
-            tf_idf[word] = (searchdata.get_tf_idf(link, word))
-            vector.append(searchdata.get_tf_idf(link, word))
-
-        # write_to_file(dirname, "page_rank.txt", page_rank)
-        # write_to_file(dirname, "tf.txt", tf)
-        write_to_file(dirname, "tf-idfs.txt", tf_idf)
-
+    num_of_docs = len(links_visited)
+    for w in word_appears:
+        idf[w] = math.log((num_of_docs / (1+(len(word_appears[w])))), 2)
     write_to_file("data", "idf.txt", idf)
+
+
+def write_tfidf_to_files(links_visited):
+
+    idf = read_file("data", "idf.txt")
+
+    for link in links_visited:
+        tfidf = {}
+        dirname = get_dirname(link)
+        tf = read_file(dirname, "tf.txt")
+        for w in tf:
+            tfidf[w] = math.log((1 + tf[w]), 2) * idf[w]
+
+        write_to_file(dirname, "tf-idfs.txt", tfidf)
+
+
+def write_incoming_links_to_files(incoming_links):
+    for key in incoming_links:
+        write_to_file(get_dirname(key), "incoming_links.txt",
+                      incoming_links[key])
 
 
 def crawl(seed):
     delete_files()
 
     incoming_links = {}
-    unique_words = []
+    word_appears = {}
 
     queue = [seed]
     links_visited = {}
+    map_ID_to_URL = {}
     ID = 0
     links_visited[seed] = ID
+    map_ID_to_URL[ID] = seed
 
     # while queue is not empty
     while queue:
         # read the top URL
         contents = webdev.read_url(queue[0])
 
-        # set up files
+        # set up file structures
         dirname = get_dirname(queue[0])
         setup_files(dirname)
 
         # write title to title.txt
         write_to_file(dirname, "title.txt", get_title(contents))
 
-        # call parse_words function and input contents as parameter
         # return a list of words in one page
         words = parse_words(contents)
-        all_words = {}
+        tf = {}
 
         # add words in the all_words dictionary
         for w in words:
 
-            if w not in unique_words:
-                unique_words.append(w)
-
-            if w not in all_words:
-                all_words[w] = 1
+            if w not in tf:
+                tf[w] = (1 / len(words))
             else:
-                all_words[w] += 1
+                tf[w] += (1 / len(words))
+
+            if w not in word_appears:
+                word_appears[w] = [queue[0]]
+            else:
+                if queue[0] in word_appears[w]:
+                    continue
+                else:
+                    word_appears[w].append(queue[0])
 
         # call parse_links function and input contents as parameter
         # return a list of links in one page
@@ -185,27 +208,24 @@ def crawl(seed):
             if full_link not in links_visited:
                 ID += 1
                 links_visited[full_link] = ID
+                map_ID_to_URL[ID] = full_link
+
                 queue.append(full_link)
 
         # BEFORE REMOVING, ADD CONTENTS TO FILES
         write_to_file(dirname, "outgoing_links.txt", outgoing_links)
-        write_to_file(dirname, "words.txt", all_words)
+        write_to_file(dirname, "tf.txt", tf)
 
         # remove the first URL
         queue.pop(0)
 
-    for key in incoming_links:
-        write_to_file(get_dirname(key), "incoming_links.txt",
-                      incoming_links[key])
-
     write_to_file("data", "length.txt", len(links_visited))
     write_to_file("data", "links_visited.txt", links_visited)
-    # write_to_file("data", "unique_words.txt", unique_words)
+    write_to_file("data", "map_id_to_url.txt", map_ID_to_URL)
 
-    computation_process(links_visited, unique_words)
+    write_incoming_links_to_files(incoming_links)
+    write_idf_to_file(links_visited, word_appears)
+    write_tfidf_to_files(links_visited)
     searchdata.write_page_rank_to_files(seed)
 
     return len(links_visited)
-
-
-crawl("http://people.scs.carleton.ca/~davidmckenney/tinyfruits/N-0.html")

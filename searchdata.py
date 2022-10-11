@@ -12,6 +12,13 @@ def get_dirname(full):
     return file_path
 
 
+def check_directory(dir_name):
+    if os.path.isdir(dir_name):
+        return True
+    else:
+        return False
+
+
 def read_file(dirname, filename):
     file_path = os.path.join(dirname, filename)
     f = open(file_path, "r")
@@ -44,19 +51,23 @@ def get_matrix_value(ID, outgoing_ID):
         return False
 
 
-def get_outgoing_links(URL):
+def get_outgoing_links(URL):  # PASSED TEST
     dirname = get_dirname(URL)
+    if check_directory(dirname) == False:
+        return None
     outgoing_links = read_file(dirname, "outgoing_links.txt")
-    return outgoing_links if outgoing_links else None
+    return outgoing_links
 
 
-def get_incoming_links(URL):
+def get_incoming_links(URL):  # PASSED TEST
     dirname = get_dirname(URL)
+    if check_directory(dirname) == False:
+        return None
     incoming_links = read_file(dirname, "incoming_links.txt")
-    return incoming_links if incoming_links else None
+    return incoming_links
 
 
-def get_page_rank(URL):
+def get_page_rank(URL):  # PASSED TEST
     links_visited = read_file("data", "links_visited.txt")
     if URL not in links_visited:
         return -1
@@ -105,8 +116,12 @@ def get_page_rank(URL):
 
 
 # Term Frequencies
-def get_tf(URL, word):
+def get_tf(URL, word):  # PASSED TEST
     dirname = get_dirname(URL)
+
+    if check_directory(dirname) == False:
+        return 0
+
     words = read_file(dirname, "words.txt")
     links_visited = read_file("data", "links_visited.txt")
 
@@ -122,7 +137,7 @@ def get_tf(URL, word):
 
 
 # IDFs
-def get_idf(word):
+def get_idf(word):  # PASSED TEST
     links_visited = read_file("data", "links_visited.txt")
 
     num_of_documents_w = 0
@@ -144,21 +159,24 @@ def get_idf(word):
 
 
 # tf-idfs
-def get_tf_idf(URL, word):
+def get_tf_idf(URL, word):  # PASSED TEST
     return math.log((1 + get_tf(URL, word)), 2) * get_idf(word)
 
 
 def get_tf_query_word(query, word):
     query = query.split(" ")
+    # coconut fig peach papaya kiwi kiwi
     counter = {}
     for w in query:
         if w in counter:
             counter[w] += 1
         else:
             counter[w] = 1
-    return counter[word]
+    return counter[word] / len(query)
 
 
 def get_idf_query_word(word):
     idfs = read_file("data", "idf.txt")
+    if word not in idfs:
+        return 0
     return idfs[word]

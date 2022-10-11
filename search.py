@@ -19,7 +19,12 @@ def get_page_vector(query, link):
     for word in query.split(" "):
         if word in vector:
             continue
+        if word not in tfidfs:
+            vector[word] = 0
+            continue
+
         vector[word] = tfidfs[word]
+
     return list(vector.values())
 
 

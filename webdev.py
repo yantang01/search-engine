@@ -1,7 +1,6 @@
-import urllib.request
 import sys
 import time
-
+import urllib.request
 
 # returns the string contents of the page at url, or "" if there is an error
 

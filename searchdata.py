@@ -1,6 +1,7 @@
 import json
 import os
-import math
+
+# import crawler
 import matmult
 
 
@@ -12,11 +13,11 @@ def get_dirname(full):
     return file_path
 
 
-def check_directory(dir_name):
-    if os.path.isdir(dir_name):
-        return True
-    else:
-        return False
+# def check_directory(dir_name):  # DELETE THIS FUNCTION
+#     if os.path.isdir(dir_name):
+#         return True
+#     else:
+#         return False
 
 
 def read_file(dirname, filename):
@@ -59,7 +60,7 @@ def get_matrix_value(ID, outgoing_ID):
 # O(1) time complexity --> read data from file
 def get_outgoing_links(URL):  # PASSED TEST
     dirname = get_dirname(URL)
-    if check_directory(dirname) == False:
+    if not os.path.isdir(dirname):
         return None
     outgoing_links = read_file(dirname, "outgoing_links.txt")
     return outgoing_links
@@ -68,7 +69,7 @@ def get_outgoing_links(URL):  # PASSED TEST
 # O(1) time complexity --> read data from file
 def get_incoming_links(URL):  # PASSED TEST
     dirname = get_dirname(URL)
-    if check_directory(dirname) == False:
+    if not os.path.isdir(dirname):
         return None
     incoming_links = read_file(dirname, "incoming_links.txt")
     return incoming_links
@@ -126,7 +127,7 @@ def write_page_rank_to_files(URL):  # PASSED TEST
 def get_page_rank(URL):
     dirname = get_dirname(URL)
 
-    if check_directory(dirname) == False:
+    if not os.path.isdir(dirname):
         return -1
 
     return read_file(dirname, "page_rank.txt")
@@ -137,7 +138,7 @@ def get_page_rank(URL):
 def get_tf(URL, word):
     dirname = get_dirname(URL)
 
-    if check_directory(dirname) == False:
+    if not os.path.isdir(dirname):
         return 0
 
     tf = read_file(dirname, "tf.txt")
@@ -162,7 +163,7 @@ def get_idf(word):  # PASSED TEST
 def get_tf_idf(URL, word):  # PASSED TEST
     dirname = get_dirname(URL)
 
-    if check_directory(dirname) == False:
+    if not os.path.isdir(dirname):
         return 0
 
     tfidf = read_file(dirname, "tf-idfs.txt")
@@ -171,22 +172,3 @@ def get_tf_idf(URL, word):  # PASSED TEST
         return 0
 
     return tfidf[word]
-
-
-def get_tf_query_word(query, word):
-    query = query.split(" ")
-    # coconut fig peach papaya kiwi kiwi
-    counter = {}
-    for w in query:
-        if w in counter:
-            counter[w] += 1
-        else:
-            counter[w] = 1
-    return counter[word] / len(query)
-
-
-def get_idf_query_word(word):
-    idfs = read_file("data", "idf.txt")
-    if word not in idfs:
-        return 0
-    return idfs[word]

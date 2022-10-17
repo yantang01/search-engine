@@ -1,5 +1,25 @@
-import searchdata
 import math
+
+import searchdata
+
+
+def get_tf_query_word(query, word):
+    query = query.split(" ")
+    # coconut fig peach papaya kiwi kiwi
+    counter = {}
+    for w in query:
+        if w in counter:
+            counter[w] += 1
+        else:
+            counter[w] = 1
+    return counter[word] / len(query)
+
+
+def get_idf_query_word(word):
+    idfs = searchdata.read_file("data", "idf.txt")
+    if word not in idfs:
+        return 0
+    return idfs[word]
 
 
 def get_query_vector(query):
@@ -8,7 +28,7 @@ def get_query_vector(query):
         if word in vector:
             continue
         vector[word] = math.log(
-            (1 + searchdata.get_tf_query_word(query, word)), 2) * searchdata.get_idf_query_word(word)
+            (1 + get_tf_query_word(query, word)), 2) * get_idf_query_word(word)
     return list(vector.values())
 
 

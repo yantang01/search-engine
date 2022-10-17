@@ -1,8 +1,9 @@
-import math
-import webdev
-import os
 import json
+import math
+import os
+
 import searchdata
+import webdev
 
 
 def parse_links(contents):
@@ -50,9 +51,11 @@ def get_title(contents):
 
 # helper function to get full url
 # if url starts with ./
-#   combine it with seed url
+# combine it with seed url
 # else
-#   use the url
+# use the url
+
+
 def get_full_url(url, base):
     if url.startswith('./'):
         # add to the seed url
@@ -229,3 +232,6 @@ def crawl(seed):
     searchdata.write_page_rank_to_files(seed)
 
     return len(links_visited)
+
+
+crawl("http://people.scs.carleton.ca/~davidmckenney/tinyfruits/N-0.html")

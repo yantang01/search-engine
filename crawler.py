@@ -1,7 +1,7 @@
-import json
 import math
 import os
 
+import global_functions
 import searchdata
 import webdev
 
@@ -54,8 +54,6 @@ def get_title(contents):
 # combine it with seed url
 # else
 # use the url
-
-
 def get_full_url(url, base):
     if url.startswith('./'):
         # add to the seed url
@@ -67,12 +65,12 @@ def get_full_url(url, base):
         return url
 
 
-def get_dirname(full):
-    start = full.rfind("/")
-    end = full.rfind(".html")
-    dirname = full[start + 1:end]
-    file_path = os.path.join("data", dirname)
-    return file_path
+# def global_functions.get_dirname(full):
+#     start = full.rfind("/")
+#     end = full.rfind(".html")
+#     dirname = full[start + 1:end]
+#     file_path = os.path.join("data", dirname)
+#     return file_path
 
 
 def create_directory(dirname):
@@ -85,20 +83,20 @@ def create_file(dirname, filename):
     fileout.close()
 
 
-def read_file(dirname, filename):
-    file_path = os.path.join(dirname, filename)
-    f = open(file_path, "r")
-    data = f.read()
-    js = json.loads(data)
-    f.close()
-    return js
+# def global_functions.read_file(dirname, filename):
+#     file_path = os.path.join(dirname, filename)
+#     f = open(file_path, "r")
+#     data = f.read()
+#     js = json.loads(data)
+#     f.close()
+#     return js
 
 
-def write_to_file(dirname, filename, content):
-    file_path = os.path.join(dirname, filename)
-    fileout = open(file_path, "w")
-    fileout.write(json.dumps(content))
-    fileout.close()
+# def global_functions.write_to_file(dirname, filename, content):
+#     file_path = os.path.join(dirname, filename)
+#     fileout = open(file_path, "w")
+#     fileout.write(json.dumps(content))
+#     fileout.close()
 
 
 def delete_files():
@@ -122,27 +120,27 @@ def write_idf_to_file(links_visited, word_appears):
     num_of_docs = len(links_visited)
     for w in word_appears:
         idf[w] = math.log((num_of_docs / (1+(len(word_appears[w])))), 2)
-    write_to_file("data", "idf.txt", idf)
+    global_functions.write_to_file("data", "idf.txt", idf)
 
 
 def write_tfidf_to_files(links_visited):
 
-    idf = read_file("data", "idf.txt")
+    idf = global_functions.read_file("data", "idf.txt")
 
     for link in links_visited:
         tfidf = {}
-        dirname = get_dirname(link)
-        tf = read_file(dirname, "tf.txt")
+        dirname = global_functions.get_dirname(link)
+        tf = global_functions.read_file(dirname, "tf.txt")
         for w in tf:
             tfidf[w] = math.log((1 + tf[w]), 2) * idf[w]
 
-        write_to_file(dirname, "tf-idfs.txt", tfidf)
+        global_functions.write_to_file(dirname, "tf-idfs.txt", tfidf)
 
 
 def write_incoming_links_to_files(incoming_links):
     for key in incoming_links:
-        write_to_file(get_dirname(key), "incoming_links.txt",
-                      incoming_links[key])
+        global_functions.write_to_file(global_functions.get_dirname(key), "incoming_links.txt",
+                                       incoming_links[key])
 
 
 def crawl(seed):
@@ -164,11 +162,12 @@ def crawl(seed):
         contents = webdev.read_url(queue[0])
 
         # set up file structures
-        dirname = get_dirname(queue[0])
+        dirname = global_functions.get_dirname(queue[0])
         setup_files(dirname)
 
         # write title to title.txt
-        write_to_file(dirname, "title.txt", get_title(contents))
+        global_functions.write_to_file(
+            dirname, "title.txt", get_title(contents))
 
         # return a list of words in one page
         words = parse_words(contents)
@@ -216,15 +215,16 @@ def crawl(seed):
                 queue.append(full_link)
 
         # BEFORE REMOVING, ADD CONTENTS TO FILES
-        write_to_file(dirname, "outgoing_links.txt", outgoing_links)
-        write_to_file(dirname, "tf.txt", tf)
+        global_functions.write_to_file(
+            dirname, "outgoing_links.txt", outgoing_links)
+        global_functions.write_to_file(dirname, "tf.txt", tf)
 
         # remove the first URL
         queue.pop(0)
 
-    write_to_file("data", "length.txt", len(links_visited))
-    write_to_file("data", "links_visited.txt", links_visited)
-    write_to_file("data", "map_id_to_url.txt", map_ID_to_URL)
+    global_functions.write_to_file("data", "length.txt", len(links_visited))
+    global_functions.write_to_file("data", "links_visited.txt", links_visited)
+    global_functions.write_to_file("data", "map_id_to_url.txt", map_ID_to_URL)
 
     write_incoming_links_to_files(incoming_links)
     write_idf_to_file(links_visited, word_appears)
@@ -232,6 +232,3 @@ def crawl(seed):
     searchdata.write_page_rank_to_files(seed)
 
     return len(links_visited)
-
-
-crawl("http://people.scs.carleton.ca/~davidmckenney/tinyfruits/N-0.html")

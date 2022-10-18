@@ -1,6 +1,6 @@
 import math
 
-import searchdata
+import global_functions
 
 
 def get_tf_query_word(query, word):
@@ -16,7 +16,7 @@ def get_tf_query_word(query, word):
 
 
 def get_idf_query_word(word):
-    idfs = searchdata.read_file("data", "idf.txt")
+    idfs = global_functions.read_file("data", "idf.txt")
     if word not in idfs:
         return 0
     return idfs[word]
@@ -33,8 +33,8 @@ def get_query_vector(query):
 
 
 def get_page_vector(query, link):
-    dirname = searchdata.get_dirname(link)
-    tfidfs = searchdata.read_file(dirname, "tf-idfs.txt")
+    dirname = global_functions.get_dirname(link)
+    tfidfs = global_functions.read_file(dirname, "tf-idfs.txt")
     vector = {}
     for word in query.split(" "):
         if word in vector:
@@ -63,20 +63,20 @@ def similarity(query, doc):
 
 
 def search(query, boost):
-    links_visited = searchdata.read_file("data", "links_visited.txt")
+    links_visited = global_functions.read_file("data", "links_visited.txt")
 
     top_list = []
     query_vector = get_query_vector(query)
 
     for link in links_visited:
-        dirname = searchdata.get_dirname(link)
+        dirname = global_functions.get_dirname(link)
         entry = {}
         entry["url"] = link
-        entry["title"] = searchdata.read_file(dirname, "title.txt")
+        entry["title"] = global_functions.read_file(dirname, "title.txt")
         page_vector = get_page_vector(query, link)
         s = similarity(query_vector, page_vector)
         if boost == True:
-            s = s * float(searchdata.read_file(dirname, "page_rank.txt"))
+            s = s * float(global_functions.read_file(dirname, "page_rank.txt"))
         entry["score"] = s
         top_list.append(entry)
 

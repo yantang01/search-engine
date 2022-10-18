@@ -1,49 +1,40 @@
-import json
 import os
 
-# import crawler
+import global_functions
 import matmult
 
-
-def get_dirname(full):
-    start = full.rfind("/")
-    end = full.rfind(".html")
-    dirname = full[start + 1:end]
-    file_path = os.path.join("data", dirname)
-    return file_path
-
-
-# def check_directory(dir_name):  # DELETE THIS FUNCTION
-#     if os.path.isdir(dir_name):
-#         return True
-#     else:
-#         return False
+# def get_dirname(full):
+#     start = full.rfind("/")
+#     end = full.rfind(".html")
+#     dirname = full[start + 1:end]
+#     file_path = os.path.join("data", dirname)
+#     return file_path
 
 
-def read_file(dirname, filename):
-    file_path = os.path.join(dirname, filename)
-    f = open(file_path, "r")
-    data = f.read()
-    js = json.loads(data)
-    f.close()
-    return js
+# def read_file(dirname, filename):
+#     file_path = os.path.join(dirname, filename)
+#     f = open(file_path, "r")
+#     data = f.read()
+#     js = json.loads(data)
+#     f.close()
+#     return js
 
 
-def write_to_file(dirname, filename, content):
-    file_path = os.path.join(dirname, filename)
-    fileout = open(file_path, "w")
-    fileout.write(json.dumps(content))
-    fileout.close()
+# def write_to_file(dirname, filename, content):
+#     file_path = os.path.join(dirname, filename)
+#     fileout = open(file_path, "w")
+#     fileout.write(json.dumps(content))
+#     fileout.close()
 
 
 def ID_to_URL(ID):
-    URL_mapping = read_file("data", "map_id_to_url.txt")
+    URL_mapping = global_functions.read_file("data", "map_id_to_url.txt")
 
     return URL_mapping[str(ID)]
 
 
 def URL_to_ID(URL):
-    ID_mapping = read_file("data", "links_visited.txt")
+    ID_mapping = global_functions.read_file("data", "links_visited.txt")
 
     return ID_mapping[URL]
 
@@ -59,29 +50,29 @@ def get_matrix_value(ID, outgoing_ID):
 
 # O(1) time complexity --> read data from file
 def get_outgoing_links(URL):  # PASSED TEST
-    dirname = get_dirname(URL)
+    dirname = global_functions.get_dirname(URL)
     if not os.path.isdir(dirname):
         return None
-    outgoing_links = read_file(dirname, "outgoing_links.txt")
+    outgoing_links = global_functions.read_file(dirname, "outgoing_links.txt")
     return outgoing_links
 
 
 # O(1) time complexity --> read data from file
 def get_incoming_links(URL):  # PASSED TEST
-    dirname = get_dirname(URL)
+    dirname = global_functions.get_dirname(URL)
     if not os.path.isdir(dirname):
         return None
-    incoming_links = read_file(dirname, "incoming_links.txt")
+    incoming_links = global_functions.read_file(dirname, "incoming_links.txt")
     return incoming_links
 
 
 def write_page_rank_to_files(URL):  # PASSED TEST
-    links_visited = read_file("data", "links_visited.txt")
+    links_visited = global_functions.read_file("data", "links_visited.txt")
     if URL not in links_visited:
         return -1
 
     # 1. Generate Matrix
-    ROWS = COLS = read_file("data", "length.txt")
+    ROWS = COLS = global_functions.read_file("data", "length.txt")
     matrix = [[0] * COLS for i in range(ROWS)]
 
     # count 1s
@@ -119,29 +110,29 @@ def write_page_rank_to_files(URL):  # PASSED TEST
         vector = new_vector
 
     for link in links_visited:
-        dirname = get_dirname(link)
+        dirname = global_functions.get_dirname(link)
         ID = URL_to_ID(link)
-        write_to_file(dirname, "page_rank.txt", vector[0][ID])
+        global_functions.write_to_file(dirname, "page_rank.txt", vector[0][ID])
 
 
 def get_page_rank(URL):
-    dirname = get_dirname(URL)
+    dirname = global_functions.get_dirname(URL)
 
     if not os.path.isdir(dirname):
         return -1
 
-    return read_file(dirname, "page_rank.txt")
+    return global_functions.read_file(dirname, "page_rank.txt")
 
 
 # Term Frequencies
 # read --> O(1)
 def get_tf(URL, word):
-    dirname = get_dirname(URL)
+    dirname = global_functions.get_dirname(URL)
 
     if not os.path.isdir(dirname):
         return 0
 
-    tf = read_file(dirname, "tf.txt")
+    tf = global_functions.read_file(dirname, "tf.txt")
 
     if word not in tf:
         return 0
@@ -151,7 +142,7 @@ def get_tf(URL, word):
 
 # IDFs
 def get_idf(word):  # PASSED TEST
-    idf = read_file("data", "idf.txt")
+    idf = global_functions.read_file("data", "idf.txt")
 
     if word not in idf:
         return 0
@@ -161,12 +152,12 @@ def get_idf(word):  # PASSED TEST
 
 # tf-idfs
 def get_tf_idf(URL, word):  # PASSED TEST
-    dirname = get_dirname(URL)
+    dirname = global_functions.get_dirname(URL)
 
     if not os.path.isdir(dirname):
         return 0
 
-    tfidf = read_file(dirname, "tf-idfs.txt")
+    tfidf = global_functions.read_file(dirname, "tf-idfs.txt")
 
     if word not in tfidf:
         return 0

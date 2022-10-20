@@ -21,6 +21,8 @@ def read_file(dirname, filename):
 
 def write_to_file(dirname, filename, content):
     file_path = os.path.join(dirname, filename)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
     fileout = open(file_path, "w")
     fileout.write(json.dumps(content))
     fileout.close()

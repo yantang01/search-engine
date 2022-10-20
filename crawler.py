@@ -3,7 +3,6 @@ import os
 
 import global_functions
 import matmult
-import searchdata
 import webdev
 
 
@@ -14,12 +13,10 @@ def parse_links(contents):
     end_tag = '">'
     links = []
     while True:
-        # get all the words in a list
         start_index = contents.find(start_tag, end_index)
         if start_index == -1:
             break
         end_index = contents.find(end_tag, start_index)
-        # words is a list of all the words
         links.append(
             contents[(len(start_tag) + start_index):end_index])
     return links
@@ -31,12 +28,10 @@ def parse_words(contents):
     start_tag = '<p>'
     end_tag = '</p>'
     while True:
-        # get all the words in a list
         start_index = contents.find(start_tag, end_index)
         if start_index == -1:
             break
         end_index = contents.find(end_tag, start_index)
-        # words is a list of all the words
         words = contents[(len("<p>") + start_index):end_index].split()
 
     return words
@@ -50,14 +45,8 @@ def get_title(contents):
     return contents[(len("<title>") + start_index):end_index]
 
 
-# helper function to get full url
-# if url starts with ./
-# combine it with seed url
-# else
-# use the url
 def get_full_url(url, base):
     if url.startswith('./'):
-        # add to the seed url
         start = url.find("./")
         end = base.rfind("/")
         full = base[:end] + url[start + 1:]
@@ -78,16 +67,6 @@ def create_file(dirname, filename):
 
 def delete_files():
     os.system("rm -rf data")
-
-
-def setup_files(dir_name):
-    create_directory(dir_name)
-    create_file(dir_name, "title.txt")
-    create_file(dir_name, "incoming_links.txt")
-    create_file(dir_name, "outgoing_links.txt")
-    create_file(dir_name, "page_rank.txt")
-    create_file(dir_name, "tf.txt")
-    create_file(dir_name, "tf-idfs.txt")
 
 
 def write_idf_to_file(links_visited, word_appears):
@@ -128,17 +107,19 @@ def URL_to_ID(URL, ID_mapping):
     return ID_mapping[URL]
 
 
-def get_matrix_value(ID, outgoing_ID, map_ID_to_URL):
+def get_matrix_value(ID, outgoing_ID, map_ID_to_URL, outgoing_helper):
+
     URL = ID_to_URL(ID, map_ID_to_URL)
     outgoing_URL = ID_to_URL(outgoing_ID, map_ID_to_URL)
-    if outgoing_URL in searchdata.get_outgoing_links(URL):
+
+    if outgoing_URL in outgoing_helper[URL]:
         return True
     else:
         return False
 
 
-def write_page_rank_to_files(URL, links_visited, map_ID_to_URL):  # PASSED TEST
-    # links_visited = global_functions.read_file("data", "links_visited.txt")
+def write_page_rank_to_files(URL, links_visited, map_ID_to_URL, outgoing_helper):
+
     if URL not in links_visited:
         return -1
 
@@ -153,7 +134,7 @@ def write_page_rank_to_files(URL, links_visited, map_ID_to_URL):  # PASSED TEST
     for r in range(ROWS):
         count = 0
         for c in range(COLS):
-            if get_matrix_value(r, c, map_ID_to_URL) == False:
+            if get_matrix_value(r, c, map_ID_to_URL, outgoing_helper) == False:
                 continue
             matrix[r][c] = 1  # r is the page ID, c is the outgoing links' ID
             count += 1
@@ -165,12 +146,6 @@ def write_page_rank_to_files(URL, links_visited, map_ID_to_URL):  # PASSED TEST
     for r in range(ROWS):
         for c in range(COLS):
             matrix[r][c] = ((matrix[r][c] / counter[r]) * 0.9) + (0.1/ROWS)
-
-    # matrix = matmult.mult_scalar(matrix, 0.9)
-
-    # for r in range(ROWS):
-    #     for c in range(COLS):
-    #         matrix[r][c] = matrix[r][c] + (0.1/ROWS)
 
     # 6. Multiply the matrix by a vector
     distance = 99
@@ -191,6 +166,7 @@ def crawl(seed):
 
     incoming_links = {}
     word_appears = {}
+    outgoing_helper = {}
 
     queue = [seed]
     links_visited = {}
@@ -204,15 +180,13 @@ def crawl(seed):
         # read the top URL
         contents = webdev.read_url(queue[0])
 
-        # set up file structures
+        # get each page's directory name
         dirname = global_functions.get_dirname(queue[0])
-        setup_files(dirname)
 
-        # write title to title.txt
         global_functions.write_to_file(
             dirname, "title.txt", get_title(contents))
 
-        # return a list of words in one page
+        # return a list of words in the web page
         words = parse_words(contents)
         tf = {}
 
@@ -262,16 +236,19 @@ def crawl(seed):
             dirname, "outgoing_links.txt", outgoing_links)
         global_functions.write_to_file(dirname, "tf.txt", tf)
 
+        # Helper function to get outgoing_links for pageRank calculation
+        # rather than open "outgoing_links.txt" 1000000 times
+        outgoing_helper[queue[0]] = outgoing_links
+
         # remove the first URL
         queue.pop(0)
 
-    global_functions.write_to_file("data", "length.txt", len(links_visited))
     global_functions.write_to_file("data", "links_visited.txt", links_visited)
-    # global_functions.write_to_file("data", "map_id_to_url.txt", map_ID_to_URL)
 
     write_incoming_links_to_files(incoming_links)
     write_idf_to_file(links_visited, word_appears)
     write_tfidf_to_files(links_visited)
-    write_page_rank_to_files(seed, links_visited, map_ID_to_URL)
+    write_page_rank_to_files(
+        seed, links_visited, map_ID_to_URL, outgoing_helper)
 
     return len(links_visited)

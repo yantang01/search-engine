@@ -5,7 +5,6 @@ import global_functions
 
 def get_tf_query_word(query, word):
     query = query.split(" ")
-    # coconut fig peach papaya kiwi kiwi
     counter = {}
     for w in query:
         if w in counter:

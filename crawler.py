@@ -151,7 +151,7 @@ def write_page_rank_to_files(URL, links_visited, map_ID_to_URL, outgoing_helper)
     distance = 99
     vector = [[1/ROWS] * ROWS]
     while distance > 0.0001:
-        new_vector = matmult.mult_matrix_test(vector, matrix)
+        new_vector = matmult.mult_matrix(vector, matrix)
         distance = matmult.euclidean_dist(vector, new_vector)
         vector = new_vector
 

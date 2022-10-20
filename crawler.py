@@ -65,14 +65,6 @@ def get_full_url(url, base):
         return url
 
 
-# def global_functions.get_dirname(full):
-#     start = full.rfind("/")
-#     end = full.rfind(".html")
-#     dirname = full[start + 1:end]
-#     file_path = os.path.join("data", dirname)
-#     return file_path
-
-
 def create_directory(dirname):
     os.makedirs(dirname)
 
@@ -81,22 +73,6 @@ def create_file(dirname, filename):
     file_path = os.path.join(dirname, filename)
     fileout = open(file_path, "w")
     fileout.close()
-
-
-# def global_functions.read_file(dirname, filename):
-#     file_path = os.path.join(dirname, filename)
-#     f = open(file_path, "r")
-#     data = f.read()
-#     js = json.loads(data)
-#     f.close()
-#     return js
-
-
-# def global_functions.write_to_file(dirname, filename, content):
-#     file_path = os.path.join(dirname, filename)
-#     fileout = open(file_path, "w")
-#     fileout.write(json.dumps(content))
-#     fileout.close()
 
 
 def delete_files():

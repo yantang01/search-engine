@@ -2,6 +2,7 @@ import math
 import os
 
 import global_functions
+import matmult
 import searchdata
 import webdev
 
@@ -82,12 +83,10 @@ def delete_files():
 def setup_files(dir_name):
     create_directory(dir_name)
     create_file(dir_name, "title.txt")
-    # create_file(dir_name, "words.txt")
     create_file(dir_name, "incoming_links.txt")
     create_file(dir_name, "outgoing_links.txt")
     create_file(dir_name, "page_rank.txt")
     create_file(dir_name, "tf.txt")
-    # create_file(dir_name, "idf.txt")
     create_file(dir_name, "tf-idfs.txt")
 
 
@@ -117,6 +116,74 @@ def write_incoming_links_to_files(incoming_links):
     for key in incoming_links:
         global_functions.write_to_file(global_functions.get_dirname(key), "incoming_links.txt",
                                        incoming_links[key])
+
+
+def ID_to_URL(ID, URL_mapping):
+
+    return URL_mapping[ID]
+
+
+def URL_to_ID(URL, ID_mapping):
+
+    return ID_mapping[URL]
+
+
+def get_matrix_value(ID, outgoing_ID, map_ID_to_URL):
+    URL = ID_to_URL(ID, map_ID_to_URL)
+    outgoing_URL = ID_to_URL(outgoing_ID, map_ID_to_URL)
+    if outgoing_URL in searchdata.get_outgoing_links(URL):
+        return True
+    else:
+        return False
+
+
+def write_page_rank_to_files(URL, links_visited, map_ID_to_URL):  # PASSED TEST
+    # links_visited = global_functions.read_file("data", "links_visited.txt")
+    if URL not in links_visited:
+        return -1
+
+    # 1. Generate Matrix
+    ROWS = COLS = len(links_visited)
+    matrix = [[0] * COLS for i in range(ROWS)]
+
+    # count 1s
+    counter = []
+
+    # 2. Adjacency Matrix
+    for r in range(ROWS):
+        count = 0
+        for c in range(COLS):
+            if get_matrix_value(r, c, map_ID_to_URL) == False:
+                continue
+            matrix[r][c] = 1  # r is the page ID, c is the outgoing links' ID
+            count += 1
+        counter.append(count)
+
+    # 3. Initial transition
+    # 4. Scaled Adjacency Matrix; alpha value of 0.1
+    # 5. Adjacency Matrix after adding alpha/N to each entry
+    for r in range(ROWS):
+        for c in range(COLS):
+            matrix[r][c] = ((matrix[r][c] / counter[r]) * 0.9) + (0.1/ROWS)
+
+    # matrix = matmult.mult_scalar(matrix, 0.9)
+
+    # for r in range(ROWS):
+    #     for c in range(COLS):
+    #         matrix[r][c] = matrix[r][c] + (0.1/ROWS)
+
+    # 6. Multiply the matrix by a vector
+    distance = 99
+    vector = [[1/ROWS] * ROWS]
+    while distance > 0.0001:
+        new_vector = matmult.mult_matrix_test(vector, matrix)
+        distance = matmult.euclidean_dist(vector, new_vector)
+        vector = new_vector
+
+    for link in links_visited:
+        dirname = global_functions.get_dirname(link)
+        ID = URL_to_ID(link, links_visited)
+        global_functions.write_to_file(dirname, "page_rank.txt", vector[0][ID])
 
 
 def crawl(seed):
@@ -200,11 +267,11 @@ def crawl(seed):
 
     global_functions.write_to_file("data", "length.txt", len(links_visited))
     global_functions.write_to_file("data", "links_visited.txt", links_visited)
-    global_functions.write_to_file("data", "map_id_to_url.txt", map_ID_to_URL)
+    # global_functions.write_to_file("data", "map_id_to_url.txt", map_ID_to_URL)
 
     write_incoming_links_to_files(incoming_links)
     write_idf_to_file(links_visited, word_appears)
     write_tfidf_to_files(links_visited)
-    searchdata.write_page_rank_to_files(seed)
+    write_page_rank_to_files(seed, links_visited, map_ID_to_URL)
 
     return len(links_visited)

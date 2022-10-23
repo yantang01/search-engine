@@ -1,6 +1,7 @@
 import math
 
 import global_functions
+import searchdata
 
 
 def get_tf_query_word(query, word):
@@ -14,20 +15,13 @@ def get_tf_query_word(query, word):
     return counter[word] / len(query)
 
 
-def get_idf_query_word(word):
-    idfs = global_functions.read_file("data", "idf.txt")
-    if word not in idfs:
-        return 0
-    return idfs[word]
-
-
 def get_query_vector(query):
     vector = {}
     for word in query.split(" "):
         if word in vector:
             continue
         vector[word] = math.log(
-            (1 + get_tf_query_word(query, word)), 2) * get_idf_query_word(word)
+            (1 + get_tf_query_word(query, word)), 2) * searchdata.get_idf(word)
     return list(vector.values())
 
 

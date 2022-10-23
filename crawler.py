@@ -55,16 +55,6 @@ def get_full_url(url, base):
         return url
 
 
-def create_directory(dirname):
-    os.makedirs(dirname)
-
-
-def create_file(dirname, filename):
-    file_path = os.path.join(dirname, filename)
-    fileout = open(file_path, "w")
-    fileout.close()
-
-
 def delete_files():
     os.system("rm -rf data")
 

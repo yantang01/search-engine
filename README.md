@@ -9,4 +9,4 @@ A web crawler and a search engine built by Python.
 - python3 crawler.py
 - python3 search.py
 
-You only have to run crawler.py once for one website and be able to search unlimited times.
+You only have to run crawler.py once for each website and be able to search unlimited times.

@@ -1,11 +1,12 @@
-Name: Yan Tang
+A web crawler using Python that repeatedly extracts URLs and words from web pages that saves desired data
+into text files
 
-Instructions for running my crawler and search engine:
-1. Download the project folder
-1. Call the crawl function in the crawler.py module and pass a seed website as a parameter
-2. Call the search function in the search.py module. The first parameter is your search query, and the second parameter is a boolean value whether you want to boost your result or not. 
-3. cd project
-4. python crawler.py
-5. python search.py
+## Steps to run in dev environment:
 
-You only have to run crawler.py once.
+- clone repo
+- call the crawl function in the crawler.py module and pass a seed website as a parameter
+- call the search function in the search.py module. The first parameter is your search query, and the second parameter is a boolean value whether you want to boost your result or not
+- python3 crawler.py
+- python3 search.py
+
+You only have to run crawler.py once for one website.

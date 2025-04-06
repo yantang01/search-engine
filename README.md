@@ -12,4 +12,4 @@ A web crawler and a search engine built by Python.
 You only have to run crawler.py once for each website and be able to search unlimited times.
 
 ## Enhancement:
-Re-designed this Search Engine https://github.com/yantang01/search-engine-java, applying OOP principles and including a GUI using Java and JavaFX.
+Re-designed this Search Engine https://github.com/yantang01/search-engine-2.0, applying OOP principles and including a GUI using Java and JavaFX.
